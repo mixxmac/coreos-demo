@@ -1,0 +1,18 @@
+[Unit]
+Description=Hello App
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Environment="PORT=80"
+ExecStartPre=/usr/bin/wget -N -P /opt/bin http://192.168.12.1/hello
+ExecStartPre=/usr/bin/chmod +x /opt/bin/hello
+ExecStart=/opt/bin/hello
+ExecStartPost=/usr/bin/etcdctl set /services/hello/%H %H:${PORT}
+ExecStopPost=/usr/bin/etcdctl rm /services/hello/%H
+
+# [X-Fleet]
+# X-ConditionMachineMetadata=type=ssd
+# X-ConditionMachineMetadata=region=us-central1
+# X-ConditionMachineMetadata=zone=us-central1-a
