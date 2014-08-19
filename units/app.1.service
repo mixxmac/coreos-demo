@@ -1,0 +1,16 @@
+[Unit]
+Description=Application
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Environment="PORT=3000"
+ExecStartPre=/usr/bin/wget -N -P /opt/bin http://192.168.12.1/app
+ExecStartPre=/usr/bin/chmod +x /opt/bin/app
+ExecStart=/opt/bin/app
+ExecStartPost=/usr/bin/etcdctl set /services/app/%H %H:${PORT}
+ExecStopPost=/usr/bin/etcdctl rm /services/app/%H
+
+[X-Fleet]
+X-Conflicts=app*
